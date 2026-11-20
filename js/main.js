@@ -73,54 +73,91 @@ function closeRoomDetailsModal() {
 if (modalBackdrop) {
   document.querySelectorAll("[data-room-details]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const card = btn.closest("[data-room-card]");
-
-      const title =
-        card?.querySelector("h3")?.textContent ||
-        btn.dataset.roomDetails;
-
-      const price = card?.querySelector(".price")?.textContent || "";
-      const img = card?.querySelector("img")?.src || "";
-
-      modalBackdrop.querySelector("[data-modal-title]").textContent = title;
-      modalBackdrop.querySelector("[data-modal-price]").textContent = price;
-
-      const modalImage = modalBackdrop.querySelector("[data-modal-image]");
-      modalImage.src = img;
-      modalImage.alt = title;
-
-      modalBackdrop.querySelector("[data-modal-description]").textContent =
-        "Room details are demo content. Please confirm availability, facilities and final price with The Elite Stay PG & Hostel management.";
-
-      modalBackdrop.querySelector("[data-modal-book]").dataset.selectedRoom =
-        title;
-
-      openRoomDetailsModal();
+      const roomName = btn.dataset.roomDetails || btn.closest("[data-room-card]")?.querySelector("h3")?.textContent || "Room";
+      const slug = roomName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      sessionStorage.setItem("eliteStaySelectedRoom", roomName);
+      location.href = `property.html?room=${encodeURIComponent(slug)}`;
     });
   });
 
   modalBackdrop.querySelectorAll("[data-modal-close]").forEach(button => {
     button.addEventListener("click", closeRoomDetailsModal);
   });
-
   modalBackdrop.addEventListener("click", event => {
-    if (event.target === modalBackdrop) {
-      closeRoomDetailsModal();
-    }
+    if (event.target === modalBackdrop) closeRoomDetailsModal();
   });
+}
 
-  modalBackdrop.querySelector("[data-modal-book]")?.addEventListener(
-    "click",
-    event => {
-      sessionStorage.setItem(
-        "eliteStaySelectedRoom",
-        event.currentTarget.dataset.selectedRoom || ""
-      );
+/* Auto-rotate room-card images every 5 seconds on every page that contains room cards. */
+const ROOM_MEDIA = {
+  "4 Seater Room": [
+    "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=85"
+  ],
+  "3 Seater Room": [
+    "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=900&q=85"
+  ],
+  "2 Seater Room": [
+    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=85"
+  ],
+  "1 Seater Room": [
+    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=85"
+  ]
+};
 
-      closeRoomDetailsModal();
-      location.href = "contact.html#contact-form";
-    }
-  );
+document.querySelectorAll("[data-room-card]").forEach(card => {
+  const title = card.querySelector("h3")?.textContent.trim();
+  const images = ROOM_MEDIA[title];
+  const img = card.querySelector(".card-image img");
+  if (!images || !img) return;
+  let index = images.indexOf(img.src) >= 0 ? images.indexOf(img.src) : 0;
+  img.src = images[index];
+  img.dataset.roomAutoImage = "true";
+  setInterval(() => {
+    index = (index + 1) % images.length;
+    img.classList.add("room-image-fade");
+    setTimeout(() => {
+      img.src = images[index];
+      img.classList.remove("room-image-fade");
+    }, 180);
+  }, 5000);
+});
+
+/* Property detail page: four images + a compact room-tour video and complete room information. */
+const propertyRoot = document.querySelector("[data-property-page]");
+if (propertyRoot) {
+  const params = new URLSearchParams(location.search);
+  const requested = params.get("room") || "4-seater-room";
+  const roomBySlug = {
+    "4-seater-room": {name:"4 Seater Room", price:"₹6,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"Comfortable shared accommodation with essential facilities, suitable for students and working professionals.", images:ROOM_MEDIA["4 Seater Room"]},
+    "3-seater-room": {name:"3 Seater Room", price:"₹8,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A practical three-seater setup with a comfortable layout, Wi-Fi and everyday living essentials.", images:ROOM_MEDIA["3 Seater Room"]},
+    "2-seater-room": {name:"2 Seater Room", price:"₹9,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A comfortable two-seater room designed for privacy, convenience and a clean living experience.", images:ROOM_MEDIA["2 Seater Room"]},
+    "1-seater-room": {name:"1 Seater Room", price:"₹11,000", type:"Private room", furnishing:"Furnished", preference:"Any", description:"A private furnished room option for residents who prefer their own personal space and comfort.", images:ROOM_MEDIA["1 Seater Room"]}
+  };
+  const room = roomBySlug[requested] || roomBySlug["4-seater-room"];
+  const gallery = propertyRoot.querySelector("[data-property-gallery]");
+  if (gallery) gallery.innerHTML = room.images.map((src,i)=>`<img src="${src}" alt="${room.name} - image ${i+1}" loading="lazy">`).join("");
+  propertyRoot.querySelector("[data-property-title]").textContent = room.name;
+  propertyRoot.querySelector("[data-property-price]").innerHTML = `${room.price}<small> / month</small>`;
+  propertyRoot.querySelector("[data-property-type]").textContent = room.type;
+  propertyRoot.querySelector("[data-property-furnishing]").textContent = room.furnishing;
+  propertyRoot.querySelector("[data-property-preference]").textContent = room.preference;
+  propertyRoot.querySelector("[data-property-description]").textContent = room.description;
+  propertyRoot.querySelector("[data-property-book]")?.addEventListener("click",()=>{
+    sessionStorage.setItem("eliteStaySelectedRoom", room.name);
+    location.href = "contact.html#contact-form";
+  });
 }
 
 
