@@ -2,8 +2,8 @@
 /* The Elite Stay PG & Hostel frontend interactions. Replace CONFIG values with verified contact details. */
 const CONFIG = {
   whatsappNumber: "919319800234", // Add country code + number only, e.g. 91XXXXXXXXXX
-  phoneDisplay: "Add your phone number",
-  email: "Add your email address",
+  phoneDisplay: "+91 93198 00234",
+  email: "theelitestaypghostel@gmail.com",
   address: "The Elite Stay PG & Hostel, B-132, Beta 1, near Jagat Farm, Greater Noida, Uttar Pradesh, India"
 };
 const ELITE_STAY_LAT = "28.4769706";
