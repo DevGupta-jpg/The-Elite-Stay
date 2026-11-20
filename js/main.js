@@ -1,7 +1,7 @@
 
 /* The Elite Stay PG & Hostel frontend interactions. Replace CONFIG values with verified contact details. */
 const CONFIG = {
-  whatsappNumber: "918445232062", // Add country code + number only, e.g. 91XXXXXXXXXX
+  whatsappNumber: "919953598137", // Add country code + number only, e.g. 91XXXXXXXXXX
   phoneDisplay: "Add your phone number",
   email: "Add your email address",
   address: "The Elite Stay PG & Hostel, B-132, Beta 1, near Jagat Farm, Greater Noida, Uttar Pradesh, India"
@@ -16,15 +16,6 @@ document.querySelectorAll("[data-email]").forEach(el => el.textContent = CONFIG.
 document.querySelectorAll("[data-phone-link]").forEach(a => a.href = "tel:" + CONFIG.phoneDisplay.replace(/\D/g,""));
 document.querySelectorAll("[data-map]").forEach(frame => {
   frame.src = "https://maps.google.com/maps?q=" + ELITE_STAY_LAT + "," + ELITE_STAY_LNG + "&z=17&output=embed";
-});
-
-// WhatsApp number used by all WhatsApp buttons across the website.
-const whatsappBaseMessage = "Hello The Elite Stay PG & Hostel, I want to make an enquiry.";
-const whatsappDirectUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(whatsappBaseMessage)}`;
-document.querySelectorAll("[data-floating-whatsapp]").forEach(a => {
-  a.href = whatsappDirectUrl;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
 });
 
 
@@ -144,15 +135,8 @@ document.addEventListener("keydown",e=>{if (e.key === "Escape") {
 }
 if(lightbox?.classList.contains("show")&&e.key==="ArrowRight")showLightbox(lightboxIndex+1);if(lightbox?.classList.contains("show")&&e.key==="ArrowLeft")showLightbox(lightboxIndex-1);});
 
-/* Room-card enquiry popup + Formspree + WhatsApp submission */
+/* Room-card enquiry popup + Formspree submission */
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xoednvnb";
-
-function openWhatsAppForInquiry(form, source = "Website Inquiry") {
-  const data = Object.fromEntries(new FormData(form).entries());
-  const message = `The Elite Stay PG & Hostel Inquiry\n\nSource: ${source}\nName: ${data.name || "Not provided"}\nPhone: ${data.phone || "Not provided"}\nEmail: ${data.email || "Not provided"}\nRoom: ${data.roomType || "Not specified"}\nMove-in: ${data.moveDate || "Not specified"}\nOccupants: ${data.occupants || "Not specified"}\nMessage: ${data.message || "No message"}`;
-  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  return window.open(url, "_blank", "noopener,noreferrer");
-}
 
 function createInquiryModal() {
   if (document.querySelector("#roomInquiryModal")) return document.querySelector("#roomInquiryModal");
@@ -231,8 +215,6 @@ if (roomCards.length) {
     const submitBtn = inquiryForm.querySelector("[data-inquiry-submit]");
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
-    // The same enquiry is sent to WhatsApp and Formspree.
-    openWhatsAppForInquiry(inquiryForm, "Room Card Enquiry");
 
     try {
       const response = await fetch(FORMSPREE_ENDPOINT, {
@@ -266,16 +248,19 @@ if(inquiryForm){
   if(chosen&&roomSelect){const match=[...roomSelect.options].find(o=>o.text.toLowerCase().includes(chosen.toLowerCase().replace(" room","")));if(match)roomSelect.value=match.value;sessionStorage.removeItem("eliteStaySelectedRoom");}
   const notice=inquiryForm.querySelector(".notice");
 
-  inquiryForm.querySelector("[data-submit-demo]")?.addEventListener("click", async e=>{
+  inquiryForm.addEventListener("submit", async e=>{
     e.preventDefault();
     if(!inquiryForm.reportValidity())return;
-    const button=e.currentTarget;
+    const button=inquiryForm.querySelector("[data-submit-demo]");
     button.disabled=true;
     button.textContent="Sending...";
-    // One click sends the same form details to both Formspree and WhatsApp.
-    openWhatsAppForInquiry(inquiryForm, "Contact Form Inquiry");
+    notice.style.display="none";
     try{
-      const response=await fetch(FORMSPREE_ENDPOINT,{method:"POST",body:new FormData(inquiryForm),headers:{Accept:"application/json"}});
+      const response=await fetch(FORMSPREE_ENDPOINT,{
+        method:"POST",
+        body:new FormData(inquiryForm),
+        headers:{Accept:"application/json"}
+      });
       const result=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(result.errors?.map(x=>x.message).join(", ")||`Submission failed (${response.status})`);
       notice.style.display="block";
@@ -290,10 +275,9 @@ if(inquiryForm){
     }
   });
 
-  inquiryForm.querySelector("[data-send-whatsapp]")?.addEventListener("click",e=>{
-    e.preventDefault();
-    if(!inquiryForm.reportValidity()) return;
-    openWhatsAppForInquiry(inquiryForm, "Contact Form WhatsApp Inquiry");
+  inquiryForm.querySelector("[data-send-whatsapp]")?.addEventListener("click",e=>{e.preventDefault();if(!inquiryForm.reportValidity())return;if(!CONFIG.whatsappNumber){notice.style.display="block";notice.textContent="WhatsApp is not configured yet. Add the real WhatsApp number in js/main.js before using this button.";return;}const d=Object.fromEntries(new FormData(inquiryForm).entries());
+  const message=`The Elite Stay PG & Hostel Inquiry\n\nName: ${d.name}\nPhone: ${d.phone}\nEmail: ${d.email||"Not provided"}\nRoom: ${d.roomType}\nMove-in: ${d.moveDate||"Not specified"}\nOccupants: ${d.occupants||"Not specified"}\nMessage: ${d.message||"No message"}`;
+  window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`,"_blank","noopener");
   });
 }
 
