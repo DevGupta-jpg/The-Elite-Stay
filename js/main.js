@@ -1,14 +1,14 @@
 
 /* The Elite Stay PG & Hostel frontend interactions. Replace CONFIG values with verified contact details. */
 const CONFIG = {
-  whatsappNumber: "919953598137", // Add country code + number only, e.g. 91XXXXXXXXXX
+  whatsappNumber: "918445232062", // Add country code + number only, e.g. 91XXXXXXXXXX
   phoneDisplay: "Add your phone number",
   email: "Add your email address",
   address: "The Elite Stay PG & Hostel, B-132, Beta 1, near Jagat Farm, Greater Noida, Uttar Pradesh, India"
 };
 const ELITE_STAY_LAT = "28.4769706";
 const ELITE_STAY_LNG = "77.5034043";
-const directionsUrl = "https://www.google.com/maps/dir/28.479233,77.5033102/28.4769706,77.5034043/@28.4782686,77.5017147,17z/data=!3m1!4b1!4m4!4m3!1m1!4e1!1m0?entry=ttu&g_ep=EgoyMDI2MTExNy4wIKXMDSoASAFQAw%3D%3D";
+const directionsUrl = "https://www.google.com/maps/dir/?api=1&destination=" + ELITE_STAY_LAT + "," + ELITE_STAY_LNG;
 document.querySelectorAll("[data-directions]").forEach(a => a.href = directionsUrl);
 document.querySelectorAll("[data-address]").forEach(el => el.textContent = CONFIG.address);
 document.querySelectorAll("[data-phone]").forEach(el => el.textContent = CONFIG.phoneDisplay);
@@ -18,8 +18,17 @@ document.querySelectorAll("[data-map]").forEach(frame => {
   frame.src = "https://maps.google.com/maps?q=" + ELITE_STAY_LAT + "," + ELITE_STAY_LNG + "&z=17&output=embed";
 });
 
+// WhatsApp number used by all WhatsApp buttons across the website.
+const whatsappBaseMessage = "Hello The Elite Stay PG & Hostel, I want to make an enquiry.";
+const whatsappDirectUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(whatsappBaseMessage)}`;
+document.querySelectorAll("[data-floating-whatsapp]").forEach(a => {
+  a.href = whatsappDirectUrl;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+});
 
-// Mobile app-style navigation. Desktop navigation remains unchanged.
+
+// Mobile app-style bottom navigation. Desktop navigation remains unchanged.
 if (window.matchMedia("(max-width: 767px)").matches && !document.querySelector(".mobile-app-nav")) {
   const currentPage = (location.pathname.split("/").pop() || "index.html").toLowerCase();
   const mobileNav = document.createElement("nav");
@@ -28,102 +37,18 @@ if (window.matchMedia("(max-width: 767px)").matches && !document.querySelector("
   const items = [
     ["index.html", "Home", "fa-solid fa-house"],
     ["rooms.html", "Rooms", "fa-solid fa-bed"],
+    ["contact.html#contact-form", "Book Now", "fa-solid fa-calendar-check"],
     ["facilities.html", "Facilities", "fa-solid fa-wifi"],
     ["gallery.html", "Gallery", "fa-solid fa-images"],
-    ["contact.html", "Contact", "fa-solid fa-phone"],
-    ["#", "Book Now", "fa-solid fa-calendar-check"]
+    ["contact.html", "Contact", "fa-solid fa-phone"]
   ];
   mobileNav.innerHTML = items.map(([href, label, icon]) => {
-    const active = currentPage === href ? " active" : "";
-    const action = href === "#" ? ' data-mobile-book' : '';
-    return `<a href="${href}" class="${active.trim()}${href === "#" ? " book-now-mobile" : ""}"${active ? ' aria-current="page"' : ""}${action}><i class="${icon}" aria-hidden="true"></i><span>${label}</span></a>`;
+    const pageHref = href.split("#")[0];
+    const active = currentPage === pageHref && label !== "Book Now" ? " active" : "";
+    return `<a href="${href}" class="${active.trim()}"${active ? ' aria-current="page"' : ""}><i class="${icon}" aria-hidden="true"></i><span>${label}</span></a>`;
   }).join("");
   document.body.appendChild(mobileNav);
 }
-
-
-// Reusable mobile/desktop enquiry popup. It opens from room Submit buttons and Book Now.
-function createEnquiryPopup(selectedRoom = "") {
-  let popup = document.querySelector("#eliteEnquiryPopup");
-  if (!popup) {
-    popup = document.createElement("div");
-    popup.id = "eliteEnquiryPopup";
-    popup.className = "elite-enquiry-backdrop";
-    popup.setAttribute("aria-hidden", "true");
-    popup.innerHTML = `
-      <div class="elite-enquiry-modal" role="dialog" aria-modal="true" aria-labelledby="eliteEnquiryTitle">
-        <button type="button" class="elite-enquiry-close" data-enquiry-close aria-label="Close">×</button>
-        <div class="elite-enquiry-head">
-          <span class="eyebrow">BOOK / ENQUIRY</span>
-          <h2 id="eliteEnquiryTitle">Enquire About Your Stay</h2>
-          <p>Share your details and The Elite Stay PG & Hostel team can contact you.</p>
-        </div>
-        <form class="elite-enquiry-form" id="eliteEnquiryForm">
-          <div class="elite-form-grid">
-            <label>Name<input name="name" required placeholder="Your name"></label>
-            <label>Phone<input name="phone" type="tel" required inputmode="tel" placeholder="Your phone number"></label>
-            <label>Email<input name="email" type="email" placeholder="Email (optional)"></label>
-            <label>Room Type<select name="roomType" required>
-              <option value="">Select room</option>
-              <option>1 Seater Room</option><option>2 Seater Room</option><option>3 Seater Room</option><option>4 Seater Room</option>
-            </select></label>
-            <label>Move-in Date<input name="moveDate" type="date"></label>
-            <label>Occupants<input name="occupants" type="number" min="1" max="10" placeholder="1"></label>
-            <label class="full">Message<textarea name="message" rows="3" placeholder="Any question or requirement?"></textarea></label>
-          </div>
-          <div class="elite-enquiry-actions">
-            <button class="btn" type="submit">Submit Enquiry</button>
-            <button class="btn btn-outline" type="button" data-enquiry-whatsapp>WhatsApp ↗</button>
-          </div>
-          <div class="elite-enquiry-notice" role="status" aria-live="polite"></div>
-        </form>
-      </div>`;
-    document.body.appendChild(popup);
-    const form = popup.querySelector("#eliteEnquiryForm");
-    popup.querySelector("[data-enquiry-close]").addEventListener("click", closeEnquiryPopup);
-    popup.addEventListener("click", e => { if (e.target === popup) closeEnquiryPopup(); });
-    form.addEventListener("submit", async e => {
-      e.preventDefault();
-      if (!form.reportValidity()) return;
-      const notice = form.querySelector(".elite-enquiry-notice");
-      try {
-        const response = await fetch("https://formspree.io/f/mzznvvlj", { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
-        notice.textContent = response.ok ? "Thank you! Your enquiry has been submitted successfully." : "Submission failed. Please try again.";
-        notice.classList.add("show");
-        if (response.ok) form.reset();
-      } catch (error) {
-        notice.textContent = "Network error. Please check your internet and try again.";
-        notice.classList.add("show");
-      }
-    });
-    popup.querySelector("[data-enquiry-whatsapp]").addEventListener("click", () => {
-      if (!form.reportValidity()) return;
-      const d = Object.fromEntries(new FormData(form).entries());
-      const message = `The Elite Stay PG & Hostel Enquiry\n\nName: ${d.name}\nPhone: ${d.phone}\nEmail: ${d.email || "Not provided"}\nRoom: ${d.roomType}\nMove-in: ${d.moveDate || "Not specified"}\nOccupants: ${d.occupants || "Not specified"}\nMessage: ${d.message || "No message"}`;
-      window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
-    });
-  }
-  const roomSelect = popup.querySelector('[name="roomType"]');
-  if (selectedRoom && roomSelect) roomSelect.value = selectedRoom;
-  popup.classList.add("show");
-  popup.setAttribute("aria-hidden", "false");
-  document.body.classList.add("modal-open");
-}
-
-function closeEnquiryPopup() {
-  const popup = document.querySelector("#eliteEnquiryPopup");
-  if (!popup) return;
-  popup.classList.remove("show");
-  popup.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("modal-open");
-}
-
-document.addEventListener("click", e => {
-  const roomButton = e.target.closest("[data-room-enquiry]");
-  const bookButton = e.target.closest("[data-mobile-book]");
-  if (roomButton) createEnquiryPopup(roomButton.dataset.roomEnquiry || "");
-  if (bookButton) { e.preventDefault(); createEnquiryPopup(""); }
-});
 
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
@@ -216,76 +141,162 @@ if(lightbox){lightbox.querySelectorAll("[data-lightbox-close]").forEach(b=>b.add
 document.addEventListener("keydown",e=>{if (e.key === "Escape") {
   lightbox?.classList.remove("show");
   closeRoomDetailsModal();
-  closeEnquiryPopup();
 }
 if(lightbox?.classList.contains("show")&&e.key==="ArrowRight")showLightbox(lightboxIndex+1);if(lightbox?.classList.contains("show")&&e.key==="ArrowLeft")showLightbox(lightboxIndex-1);});
 
+/* Room-card enquiry popup + Formspree + WhatsApp submission */
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xoednvnb";
+
+function openWhatsAppForInquiry(form, source = "Website Inquiry") {
+  const data = Object.fromEntries(new FormData(form).entries());
+  const message = `The Elite Stay PG & Hostel Inquiry\n\nSource: ${source}\nName: ${data.name || "Not provided"}\nPhone: ${data.phone || "Not provided"}\nEmail: ${data.email || "Not provided"}\nRoom: ${data.roomType || "Not specified"}\nMove-in: ${data.moveDate || "Not specified"}\nOccupants: ${data.occupants || "Not specified"}\nMessage: ${data.message || "No message"}`;
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  return window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function createInquiryModal() {
+  if (document.querySelector("#roomInquiryModal")) return document.querySelector("#roomInquiryModal");
+  const wrap = document.createElement("div");
+  wrap.className = "modal-backdrop inquiry-modal";
+  wrap.id = "roomInquiryModal";
+  wrap.setAttribute("aria-hidden", "true");
+  wrap.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="roomInquiryTitle">
+      <button class="modal-close" type="button" data-inquiry-close aria-label="Close">×</button>
+      <div class="modal-content">
+        <span class="eyebrow">ROOM ENQUIRY</span>
+        <h2 id="roomInquiryTitle">Book Your Room</h2>
+        <p class="muted">Send your details and The Elite Stay PG & Hostel will contact you.</p>
+        <form id="roomInquiryForm" action="${FORMSPREE_ENDPOINT}" method="POST">
+          <input type="hidden" name="_subject" value="The Elite Stay PG & Hostel - Room Enquiry">
+          <input type="hidden" name="source" value="Room Card Enquiry">
+          <div class="form-grid">
+            <div class="field"><label for="inquiryName">Full Name *</label><input id="inquiryName" name="name" autocomplete="name" required placeholder="Enter your name"></div>
+            <div class="field"><label for="inquiryPhone">Phone Number *</label><input id="inquiryPhone" name="phone" type="tel" autocomplete="tel" required pattern="[0-9+() -]{8,20}" placeholder="Enter phone number"></div>
+            <div class="field"><label for="inquiryEmail">Email</label><input id="inquiryEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+            <div class="field"><label for="inquiryRoom">Room Type *</label><select id="inquiryRoom" name="roomType" required><option value="">Select room type</option><option>4 Seater Room</option><option>3 Seater Room</option><option>2 Seater Room</option><option>1 Seater Room</option></select></div>
+            <div class="field"><label for="inquiryMoveDate">Expected Move-in Date</label><input id="inquiryMoveDate" name="moveDate" type="date"></div>
+            <div class="field"><label for="inquiryOccupants">Number of Occupants</label><select id="inquiryOccupants" name="occupants"><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+            <div class="field full"><label for="inquiryMessage">Message</label><textarea id="inquiryMessage" name="message" placeholder="Any requirement or question..."></textarea></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-outline" type="button" data-inquiry-cancel>Cancel</button>
+            <button class="btn" type="submit" data-inquiry-submit>Send Enquiry ↗</button>
+          </div>
+          <div class="notice" data-inquiry-notice role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  return wrap;
+}
+
+const roomCards = document.querySelectorAll("[data-room-card]");
+if (roomCards.length) {
+  const inquiryModal = createInquiryModal();
+  const inquiryForm = inquiryModal.querySelector("#roomInquiryForm");
+  const inquiryNotice = inquiryModal.querySelector("[data-inquiry-notice]");
+  const inquiryRoom = inquiryModal.querySelector("[name=roomType]");
+
+  const closeInquiry = () => {
+    inquiryModal.classList.remove("show");
+    inquiryModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  };
+
+  const openInquiry = (roomName = "") => {
+    if (roomName && inquiryRoom) inquiryRoom.value = roomName;
+    if (inquiryNotice) {
+      inquiryNotice.style.display = "none";
+      inquiryNotice.textContent = "";
+    }
+    inquiryModal.classList.add("show");
+    inquiryModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    setTimeout(() => inquiryModal.querySelector("[name=name]")?.focus(), 50);
+  };
+
+  document.querySelectorAll("[data-room-submit]").forEach(btn => {
+    btn.addEventListener("click", () => openInquiry(btn.dataset.roomSubmit || ""));
+  });
+
+  inquiryModal.querySelector("[data-inquiry-close]")?.addEventListener("click", closeInquiry);
+  inquiryModal.querySelector("[data-inquiry-cancel]")?.addEventListener("click", closeInquiry);
+  inquiryModal.addEventListener("click", e => { if (e.target === inquiryModal) closeInquiry(); });
+
+  inquiryForm?.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!inquiryForm.reportValidity()) return;
+
+    const submitBtn = inquiryForm.querySelector("[data-inquiry-submit]");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+    // The same enquiry is sent to WhatsApp and Formspree.
+    openWhatsAppForInquiry(inquiryForm, "Room Card Enquiry");
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: new FormData(inquiryForm),
+        headers: { Accept: "application/json" }
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.errors?.map(x => x.message).join(", ") || `Submission failed (${response.status})`);
+
+      inquiryNotice.style.display = "block";
+      inquiryNotice.textContent = "Thank you! Your enquiry has been sent successfully.";
+      inquiryForm.reset();
+      setTimeout(closeInquiry, 1200);
+    } catch (error) {
+      inquiryNotice.style.display = "block";
+      inquiryNotice.textContent = error.message || "Network error. Please try again.";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send Enquiry ↗";
+    }
+  });
+}
+
 const inquiryForm=document.querySelector("#inquiryForm");
 if(inquiryForm){
+  inquiryForm.setAttribute("action", FORMSPREE_ENDPOINT);
+  inquiryForm.setAttribute("method", "POST");
   const roomSelect=inquiryForm.querySelector('[name="roomType"]');
   const chosen=sessionStorage.getItem("eliteStaySelectedRoom");
   if(chosen&&roomSelect){const match=[...roomSelect.options].find(o=>o.text.toLowerCase().includes(chosen.toLowerCase().replace(" room","")));if(match)roomSelect.value=match.value;sessionStorage.removeItem("eliteStaySelectedRoom");}
   const notice=inquiryForm.querySelector(".notice");
-  
-inquiryForm.querySelector("[data-submit-demo]")?.addEventListener("click", async (e) => {
-  e.preventDefault();
 
-  if (!inquiryForm.reportValidity()) return;
-
-  const notice = inquiryForm.parentElement.querySelector(".notice");
-  const data = Object.fromEntries(new FormData(inquiryForm).entries());
-
-  try {
-    const response = await fetch("https://formspree.io/f/mzznvvlj", {
-      method: "POST",
-      body: new FormData(inquiryForm),
-      headers: {
-        Accept: "application/json"
-      }
-    });
-
-    if (response.ok) {
-      notice.style.display = "block";
-      notice.textContent = "Thank you! Your inquiry has been submitted successfully.";
+  inquiryForm.querySelector("[data-submit-demo]")?.addEventListener("click", async e=>{
+    e.preventDefault();
+    if(!inquiryForm.reportValidity())return;
+    const button=e.currentTarget;
+    button.disabled=true;
+    button.textContent="Sending...";
+    // One click sends the same form details to both Formspree and WhatsApp.
+    openWhatsAppForInquiry(inquiryForm, "Contact Form Inquiry");
+    try{
+      const response=await fetch(FORMSPREE_ENDPOINT,{method:"POST",body:new FormData(inquiryForm),headers:{Accept:"application/json"}});
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(result.errors?.map(x=>x.message).join(", ")||`Submission failed (${response.status})`);
+      notice.style.display="block";
+      notice.textContent="Thank you! Your inquiry has been sent successfully.";
       inquiryForm.reset();
-   
-} else {
-  const result = await response.json().catch(() => ({}));
+    }catch(error){
+      notice.style.display="block";
+      notice.textContent=error.message||"Network error. Please check your internet and try again.";
+    }finally{
+      button.disabled=false;
+      button.textContent="Submit Inquiry";
+    }
+  });
 
-  console.error("Formspree error:", result);
-
-  notice.style.display = "block";
-  notice.textContent =
-    result.errors?.map(error => error.message).join(", ") ||
-    `Submission failed. Error code: ${response.status}`;
+  inquiryForm.querySelector("[data-send-whatsapp]")?.addEventListener("click",e=>{
+    e.preventDefault();
+    if(!inquiryForm.reportValidity()) return;
+    openWhatsAppForInquiry(inquiryForm, "Contact Form WhatsApp Inquiry");
+  });
 }
 
-  } catch (error) {
-    notice.style.display = "block";
-    notice.textContent = "Network error. Please check your internet and try again.";
-  }
-});
-
-  inquiryForm.querySelector("[data-send-whatsapp]")?.addEventListener("click",e=>{e.preventDefault();if(!inquiryForm.reportValidity())return;if(!CONFIG.whatsappNumber){notice.style.display="block";notice.textContent="WhatsApp is not configured yet. Add the real WhatsApp number in js/main.js before using this button.";return;}const d=Object.fromEntries(new FormData(inquiryForm).entries());
-  
-const message =
-    `The Elite Stay PG & Hostel Inquiry\n\n` +
-    `Name: ${d.name}\n` +
-    `Phone: ${d.phone}\n` +
-    `Email: ${d.email || "Not provided"}\n` +
-    `Room: ${d.roomType}\n` +
-    `Move-in: ${d.moveDate || "Not specified"}\n` +
-    `Occupants: ${d.occupants || "Not specified"}\n` +
-    `Message: ${d.message || "No message"}`;
-
-window.open(
-    `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`,
-    "_blank",
-    "noopener"
-);
-});
-
-}
 const backTop=document.querySelector(".back-top");if(backTop){window.addEventListener("scroll",()=>backTop.classList.toggle("show",window.scrollY>450));backTop.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));}
 
 

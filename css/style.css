@@ -2304,7 +2304,7 @@ body.modal-open {
     bottom: 0;
     z-index: 2000;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     min-height: 68px;
     padding: 6px 7px calc(6px + env(safe-area-inset-bottom));
     background: rgba(255,255,255,.98);
@@ -2795,187 +2795,90 @@ body.modal-open {
   }
 
   .mobile-app-nav a {
-    font-size: .61rem;
+    font-size: .55rem;
+    gap: 2px;
+  }
+
+  .mobile-app-nav a i {
+    font-size: .98rem;
   }
 }
 
+/* Room card action buttons: compact, balanced and touch-friendly on every viewport */
+.room-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.18fr;
+  gap: 10px;
+  margin-top: 16px;
+}
 
-/* ===== FINAL MOBILE BOOKING / ROOM ACTION FIX ===== */
+.room-card-actions .btn {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 11px 14px;
+  font-size: .92rem;
+  white-space: nowrap;
+}
+
+.inquiry-modal .modal {
+  max-width: 680px;
+}
+
+.inquiry-modal .modal-content {
+  padding: 22px;
+}
+
+.inquiry-modal .form-grid {
+  margin-top: 14px;
+}
+
+.inquiry-modal .form-actions {
+  justify-content: flex-end;
+}
+
+.inquiry-modal .notice {
+  display: none;
+}
+
 @media (max-width: 767px) {
-  /* Keep a visible Book Now action in the top app header. */
-  .topbar .nav-cta {
-    display: inline-flex !important;
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-height: 40px !important;
-    padding: 8px 10px !important;
-    border-radius: 12px !important;
-    font-size: .72rem !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .topbar .nav-cta::first-letter { font-size: .8rem; }
-
-  /* Six-item bottom app bar, including Book Now. */
-  .mobile-app-nav {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    min-height: 70px !important;
-  }
-
-  .mobile-app-nav a {
-    min-height: 54px !important;
-    padding: 5px 1px !important;
-    font-size: .59rem !important;
-    white-space: nowrap;
-  }
-
-  .mobile-app-nav a i { font-size: 1rem !important; }
-
-  .mobile-app-nav .book-now-mobile {
-    color: #111 !important;
-    background: var(--yellow, #ffd400) !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,.12);
-  }
-
-  /* Room card actions never collapse into a hidden/overflowing button. */
   .room-card-actions {
-    display: grid !important;
-    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr) !important;
-    gap: 9px !important;
-    width: 100% !important;
-    margin-top: 14px !important;
+    grid-template-columns: 1fr 1.12fr;
+    gap: 8px;
+    margin-top: 14px;
   }
 
   .room-card-actions .btn {
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 48px !important;
-    margin: 0 !important;
-    padding: 10px 8px !important;
-    border-radius: 13px !important;
-    font-size: .8rem !important;
-    white-space: nowrap !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    min-height: 46px;
+    padding: 10px 10px;
+    font-size: .84rem;
   }
 
-  .room-submit-btn {
-    background: #fff !important;
-    color: #087f4b !important;
-    border: 1px solid #a7e4c8 !important;
-  }
-
-  .room-details-btn {
-    background: #050505 !important;
-    color: #fff !important;
-    border-color: #050505 !important;
-  }
-
-  /* Enquiry popup behaves like a mobile app bottom sheet. */
-  .elite-enquiry-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 5000;
-    display: none;
+  .inquiry-modal {
+    padding: 10px;
     align-items: flex-end;
-    justify-content: center;
-    padding: 8px;
-    background: rgba(0,0,0,.62);
   }
-  .elite-enquiry-backdrop.show { display: flex; }
-  .elite-enquiry-modal {
-    position: relative;
-    width: min(680px, 100%);
-    max-height: calc(100dvh - 16px);
-    overflow-y: auto;
-    background: #fff;
-    color: #111;
-    border-radius: 22px 22px 16px 16px;
-    padding: 18px;
-    box-shadow: 0 18px 60px rgba(0,0,0,.35);
-  }
-  .elite-enquiry-close {
-    position: sticky;
-    float: right;
-    top: 0;
-    width: 40px;
-    height: 40px;
-    border: 0;
-    border-radius: 50%;
-    background: #f1f1f1;
-    font-size: 25px;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 2;
-  }
-  .elite-enquiry-head { padding-right: 46px; }
-  .elite-enquiry-head h2 { margin: 4px 0 6px; font-size: 1.45rem; }
-  .elite-enquiry-head p { margin: 0 0 16px; color: #64748b; font-size: .88rem; }
-  .elite-form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 11px;
-  }
-  .elite-form-grid label {
-    display: grid;
-    gap: 5px;
-    font-size: .78rem;
-    font-weight: 800;
-    color: #334155;
-  }
-  .elite-form-grid label.full { grid-column: 1 / -1; }
-  .elite-form-grid input,
-  .elite-form-grid select,
-  .elite-form-grid textarea {
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 11px;
-    border: 1px solid #dbe3ee;
-    border-radius: 11px;
-    font: inherit;
-    font-size: .9rem;
-    outline: none;
-    background: #fff;
-    color: #111;
-  }
-  .elite-form-grid textarea { resize: vertical; }
-  .elite-enquiry-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 9px;
-    margin-top: 13px;
-  }
-  .elite-enquiry-actions .btn {
-    min-height: 48px;
-    width: 100%;
-  }
-  .elite-enquiry-notice {
-    display: none;
-    margin-top: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: #eefbf4;
-    color: #087f4b;
-    font-size: .82rem;
-    font-weight: 700;
-  }
-  .elite-enquiry-notice.show { display: block; }
-}
 
-@media (max-width: 390px) {
-  .topbar .nav-cta {
-    padding: 8px 8px !important;
-    font-size: .65rem !important;
+  .inquiry-modal .modal {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 22px 22px 12px 12px;
   }
-  .mobile-app-nav a { font-size: .54rem !important; }
-  .mobile-app-nav a i { font-size: .92rem !important; }
-  .room-card-actions { gap: 7px !important; }
-  .room-card-actions .btn { font-size: .73rem !important; padding-left: 5px !important; padding-right: 5px !important; }
-  .elite-form-grid { grid-template-columns: 1fr; }
-  .elite-form-grid label.full { grid-column: auto; }
-  .elite-enquiry-actions { grid-template-columns: 1fr; }
+
+  .inquiry-modal .modal-content {
+    padding: 17px;
+  }
+
+  .inquiry-modal .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .inquiry-modal .form-actions {
+    display: grid !important;
+    grid-template-columns: 1fr;
+  }
+
+  .inquiry-modal .form-actions .btn {
+    width: 100%;
+  }
 }
