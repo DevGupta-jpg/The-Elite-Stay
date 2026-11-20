@@ -1,7 +1,7 @@
 
 /* The Elite Stay PG & Hostel frontend interactions. Replace CONFIG values with verified contact details. */
 const CONFIG = {
-  whatsappNumber: "919953598137", // Add country code + number only, e.g. 91XXXXXXXXXX
+  whatsappNumber: "919319800234", // Add country code + number only, e.g. 91XXXXXXXXXX
   phoneDisplay: "Add your phone number",
   email: "Add your email address",
   address: "The Elite Stay PG & Hostel, B-132, Beta 1, near Jagat Farm, Greater Noida, Uttar Pradesh, India"
@@ -318,7 +318,6 @@ if(inquiryForm){
   });
 }
 
-const backTop=document.querySelector(".back-top");if(backTop){window.addEventListener("scroll",()=>backTop.classList.toggle("show",window.scrollY>450));backTop.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));}
 
 
 // Floating WhatsApp button on every page. Add a real number in CONFIG first.
