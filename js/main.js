@@ -28,7 +28,6 @@ if (window.matchMedia("(max-width: 767px)").matches && !document.querySelector("
   const items = [
     ["index.html", "Home", "fa-solid fa-house"],
     ["rooms.html", "Rooms", "fa-solid fa-bed"],
-    ["contact.html#contact-form", "Book Now", "fa-solid fa-calendar-check"],
     ["facilities.html", "Facilities", "fa-solid fa-wifi"],
     ["gallery.html", "Gallery", "fa-solid fa-images"],
     ["contact.html", "Contact", "fa-solid fa-phone"]
