@@ -3367,28 +3367,23 @@ body.modal-open {
   }
 }
 
-
-/* Home page room cards: keep action buttons aligned at the same bottom level. */
-.page-home .rooms-grid .card {
-  height: 100%;
+/* Monochrome mode - additive only; existing UI remains unchanged until toggled. */
+.monochrome-toggle {
+  display:inline-flex; align-items:center; gap:7px; justify-content:center;
+  min-height:40px; padding:9px 13px; border:1px solid #b7d7ff; border-radius:10px;
+  background:#fff; color:var(--blue); font:inherit; font-weight:700; cursor:pointer;
+  transition:.2s ease; white-space:nowrap;
 }
-
-.page-home .rooms-grid .card-body {
-  display: flex;
-  flex-direction: column;
-  height: calc(100% - 190px);
+.monochrome-toggle:hover { background:#f4f7fb; }
+.monochrome-toggle .mono-dot { width:9px; height:9px; border-radius:50%; background:currentColor; display:inline-block; }
+body.monochrome-mode {
+  --blue:#111; --blue2:#444; --navy:#171717; --ink:#111; --muted:#555;
+  --pale:#f1f1f1; --bg:#f7f7f7; --white:#fff; --footer:#111; --line:#d7d7d7;
+  filter:grayscale(1);
 }
-
-.page-home .rooms-grid .room-card-actions {
-  margin-top: auto;
-}
-
-@media (max-width: 767px) {
-  .page-home .rooms-grid .card-body {
-    height: auto;
-  }
-
-  .page-home .rooms-grid .room-card-actions {
-    margin-top: 14px;
-  }
+body.monochrome-mode .monochrome-toggle { background:#111; color:#fff; border-color:#111; }
+body.monochrome-mode .monochrome-toggle .mono-dot { background:#fff; }
+@media (max-width:767px){
+  .monochrome-toggle { min-height:42px; padding:9px 11px; border-radius:10px; }
+  .nav .monochrome-toggle { margin-left:6px; }
 }
