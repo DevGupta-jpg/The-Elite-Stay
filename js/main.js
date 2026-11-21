@@ -139,10 +139,10 @@ if (propertyRoot) {
   const params = new URLSearchParams(location.search);
   const requested = params.get("room") || "4-seater-room";
   const roomBySlug = {
-    "4-seater-room": {name:"4 Seater Room", price:"₹10,000–₹11,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"Comfortable shared accommodation with essential facilities, suitable for students and working professionals.", images:ROOM_MEDIA["4 Seater Room"]},
-    "3-seater-room": {name:"3 Seater Room", price:"₹12,000–₹15,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A practical three-seater setup with a comfortable layout, Wi-Fi and everyday living essentials.", images:ROOM_MEDIA["3 Seater Room"]},
-    "2-seater-room": {name:"2 Seater Room", price:"₹16,000–₹20,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A comfortable two-seater room designed for privacy, convenience and a clean living experience.", images:ROOM_MEDIA["2 Seater Room"]},
-    "1-seater-room": {name:"1 Seater Room", price:"₹30,000–₹31,000", type:"Private room", furnishing:"Furnished", preference:"Any", description:"A private furnished room option for residents who prefer their own personal space and comfort.", images:ROOM_MEDIA["1 Seater Room"]}
+    "4-seater-room": {name:"4 Seater Room", price:"₹6,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"Comfortable shared accommodation with essential facilities, suitable for students and working professionals.", images:ROOM_MEDIA["4 Seater Room"]},
+    "3-seater-room": {name:"3 Seater Room", price:"₹8,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A practical three-seater setup with a comfortable layout, Wi-Fi and everyday living essentials.", images:ROOM_MEDIA["3 Seater Room"]},
+    "2-seater-room": {name:"2 Seater Room", price:"₹9,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A comfortable two-seater room designed for privacy, convenience and a clean living experience.", images:ROOM_MEDIA["2 Seater Room"]},
+    "1-seater-room": {name:"1 Seater Room", price:"₹11,000", type:"Private room", furnishing:"Furnished", preference:"Any", description:"A private furnished room option for residents who prefer their own personal space and comfort.", images:ROOM_MEDIA["1 Seater Room"]}
   };
   const room = roomBySlug[requested] || roomBySlug["4-seater-room"];
   const gallery = propertyRoot.querySelector("[data-property-gallery]");
@@ -155,7 +155,7 @@ if (propertyRoot) {
   propertyRoot.querySelector("[data-property-description]").textContent = room.description;
   propertyRoot.querySelector("[data-property-book]")?.addEventListener("click",()=>{
     sessionStorage.setItem("eliteStaySelectedRoom", room.name);
-    location.href = "https://docs.google.com/forms/d/e/1FAIpQLSdJS4FL_7Egk9JB6NDUkHLVC7mzzREMZd3Gk2sWOfkp1ZcB3Q/viewform";
+    location.href = "contact.html#contact-form";
   });
 }
 
@@ -331,35 +331,3 @@ document.querySelectorAll("[data-floating-whatsapp]").forEach(link=>{
     window.open("https://wa.me/"+CONFIG.whatsappNumber+"?text="+encodeURIComponent(msg),"_blank","noopener");
   });
 });
-
-/* Additive Monochrome Mode toggle. No existing functionality is removed. */
-(function(){
-  const STORAGE_KEY = "eliteStayMonochrome";
-  const applyMode = enabled => {
-    document.body.classList.toggle("monochrome-mode", enabled);
-    document.querySelectorAll("[data-monochrome-toggle]").forEach(btn => {
-      btn.setAttribute("aria-pressed", String(enabled));
-      btn.innerHTML = `<span class="mono-dot" aria-hidden="true"></span>${enabled ? "Color Mode" : "Monochrome"}`;
-    });
-  };
-  const createToggle = () => {
-    if(document.querySelector("[data-monochrome-toggle]")) return;
-    const nav = document.querySelector(".nav");
-    if(!nav) return;
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "monochrome-toggle";
-    btn.setAttribute("data-monochrome-toggle", "true");
-    btn.setAttribute("aria-label", "Toggle black and white monochrome mode");
-    btn.addEventListener("click", () => {
-      const enabled = !document.body.classList.contains("monochrome-mode");
-      localStorage.setItem(STORAGE_KEY, enabled ? "1" : "0");
-      applyMode(enabled);
-    });
-    const cta = nav.querySelector(".nav-cta");
-    if(cta) cta.before(btn); else nav.appendChild(btn);
-    applyMode(localStorage.getItem(STORAGE_KEY) === "1");
-  };
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", createToggle);
-  else createToggle();
-})();
