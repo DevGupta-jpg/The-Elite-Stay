@@ -3366,3 +3366,29 @@ body.modal-open {
     display: block;
   }
 }
+
+
+/* Home page room cards: keep action buttons aligned at the same bottom level. */
+.page-home .rooms-grid .card {
+  height: 100%;
+}
+
+.page-home .rooms-grid .card-body {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 190px);
+}
+
+.page-home .rooms-grid .room-card-actions {
+  margin-top: auto;
+}
+
+@media (max-width: 767px) {
+  .page-home .rooms-grid .card-body {
+    height: auto;
+  }
+
+  .page-home .rooms-grid .room-card-actions {
+    margin-top: 14px;
+  }
+}
