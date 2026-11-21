@@ -331,3 +331,35 @@ document.querySelectorAll("[data-floating-whatsapp]").forEach(link=>{
     window.open("https://wa.me/"+CONFIG.whatsappNumber+"?text="+encodeURIComponent(msg),"_blank","noopener");
   });
 });
+
+/* Additive Monochrome Mode toggle. No existing functionality is removed. */
+(function(){
+  const STORAGE_KEY = "eliteStayMonochrome";
+  const applyMode = enabled => {
+    document.body.classList.toggle("monochrome-mode", enabled);
+    document.querySelectorAll("[data-monochrome-toggle]").forEach(btn => {
+      btn.setAttribute("aria-pressed", String(enabled));
+      btn.innerHTML = `<span class="mono-dot" aria-hidden="true"></span>${enabled ? "Color Mode" : "Monochrome"}`;
+    });
+  };
+  const createToggle = () => {
+    if(document.querySelector("[data-monochrome-toggle]")) return;
+    const nav = document.querySelector(".nav");
+    if(!nav) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "monochrome-toggle";
+    btn.setAttribute("data-monochrome-toggle", "true");
+    btn.setAttribute("aria-label", "Toggle black and white monochrome mode");
+    btn.addEventListener("click", () => {
+      const enabled = !document.body.classList.contains("monochrome-mode");
+      localStorage.setItem(STORAGE_KEY, enabled ? "1" : "0");
+      applyMode(enabled);
+    });
+    const cta = nav.querySelector(".nav-cta");
+    if(cta) cta.before(btn); else nav.appendChild(btn);
+    applyMode(localStorage.getItem(STORAGE_KEY) === "1");
+  };
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", createToggle);
+  else createToggle();
+})();
