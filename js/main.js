@@ -48,7 +48,25 @@ document.querySelectorAll(".faq-question").forEach(btn=>btn.addEventListener("cl
 
 document.querySelectorAll("[data-room-filter]").forEach(btn=>btn.addEventListener("click",()=>{const filter=btn.dataset.roomFilter;document.querySelectorAll("[data-room-filter]").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll("[data-room-card]").forEach(card=>{card.hidden=filter!=="all" && card.dataset.roomCard!==filter;});}));
 
-document.querySelectorAll("[data-gallery-filter]").forEach(btn=>btn.addEventListener("click",()=>{const filter=btn.dataset.galleryFilter;document.querySelectorAll("[data-gallery-filter]").forEach(b=>b.classList.toggle("active",b===btn));document.querySelectorAll("[data-gallery-category]").forEach(card=>{card.hidden=filter!=="all" && card.dataset.galleryCategory!==filter;});}));
+(function(){
+  function setupGalleryFilters(){
+    const root = document.querySelector(".filters");
+    if(!root || root.dataset.filtersReady === "1") return;
+    root.dataset.filtersReady = "1";
+    root.addEventListener("click", event=>{
+      const btn = event.target.closest("[data-gallery-filter]");
+      if(!btn || !root.contains(btn)) return;
+      event.preventDefault();
+      const filter = btn.dataset.galleryFilter || "all";
+      root.querySelectorAll("[data-gallery-filter]").forEach(b=>b.classList.toggle("active", b === btn));
+      document.querySelectorAll("[data-gallery-category]").forEach(card=>{
+        card.hidden = filter !== "all" && card.dataset.galleryCategory !== filter;
+      });
+    });
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupGalleryFilters);
+  else setupGalleryFilters();
+})();
 
 
 const modalBackdrop = document.querySelector("#roomModal");
@@ -133,32 +151,89 @@ document.querySelectorAll("[data-room-card]").forEach(card => {
   }, 5000);
 });
 
-/* Property detail page: four images + a compact room-tour video and complete room information. */
+/* Property detail page: room-specific gallery, pricing, details and separate video slot. */
+const ROOM_VIDEOS = {
+  // Temporary demo video URLs. Replace each URL later with that room's own video.
+  "4 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+  "3 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+  "2 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+  "1 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+};
+
 const propertyRoot = document.querySelector("[data-property-page]");
 if (propertyRoot) {
   const params = new URLSearchParams(location.search);
   const requested = params.get("room") || "4-seater-room";
+  const commonBreakdown = [
+    {icon:"▱", title:"Bed & Personal Storage", items:["Individual bed with comfortable mattress & pillow","Personal lockable almirah (wardrobe) for each resident","Dedicated bedside switchboard & charging point"]},
+    {icon:"⌑", title:"Study & Comfort", items:["Dedicated study table & ergonomic chair","AC available for comfortable living","High-speed Wi-Fi coverage"]},
+    {icon:"⌂", title:"Washroom & Utilities", items:["Attached washroom with every room","24×7 electric geyser for hot water","24×7 power backup, RO drinking water & daily housekeeping"]}
+  ];
   const roomBySlug = {
-    "4-seater-room": {name:"4 Seater Room", price:"₹6,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"Comfortable shared accommodation with essential facilities, suitable for students and working professionals.", images:ROOM_MEDIA["4 Seater Room"]},
-    "3-seater-room": {name:"3 Seater Room", price:"₹8,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A practical three-seater setup with a comfortable layout, Wi-Fi and everyday living essentials.", images:ROOM_MEDIA["3 Seater Room"]},
-    "2-seater-room": {name:"2 Seater Room", price:"₹9,000", type:"Shared room", furnishing:"Furnished", preference:"Any", description:"A comfortable two-seater room designed for privacy, convenience and a clean living experience.", images:ROOM_MEDIA["2 Seater Room"]},
-    "1-seater-room": {name:"1 Seater Room", price:"₹11,000", type:"Private room", furnishing:"Furnished", preference:"Any", description:"A private furnished room option for residents who prefer their own personal space and comfort.", images:ROOM_MEDIA["1 Seater Room"]}
+    "4-seater-room": {name:"4 Seater Room", price:"₹10,000–₹11,000", type:"Shared room (4 Seater)", furnishing:"Fully Furnished", preference:"Balcony / Non-Balcony", description:"Comfortable shared accommodation with essential facilities, suitable for students and working professionals."},
+    "3-seater-room": {name:"3 Seater Room", price:"₹12,000–₹15,000", type:"Shared room (3 Seater)", furnishing:"Fully Furnished", preference:"Balcony / Non-Balcony", description:"A practical three-seater setup with a comfortable layout, AC, attached washroom and everyday living essentials."},
+    "2-seater-room": {name:"2 Seater Room", price:"₹16,000–₹20,000", type:"Shared room (2 Seater)", furnishing:"Fully Furnished", preference:"Balcony / Non-Balcony", description:"A comfortable two-seater room designed for privacy, convenience, AC comfort and a clean living experience."},
+    "1-seater-room": {name:"1 Seater Room", price:"₹30,000–₹31,000", type:"Private room (1 Seater)", furnishing:"Fully Furnished", preference:"Balcony / Non-Balcony", description:"A private furnished room option for residents who prefer their own personal space, AC comfort and an attached washroom."}
   };
   const room = roomBySlug[requested] || roomBySlug["4-seater-room"];
   const gallery = propertyRoot.querySelector("[data-property-gallery]");
-  if (gallery) gallery.innerHTML = room.images.map((src,i)=>`<img src="${src}" alt="${room.name} - image ${i+1}" loading="lazy">`).join("");
+  const images = ROOM_MEDIA[room.name] || ROOM_MEDIA["4 Seater Room"];
+  if (gallery) gallery.innerHTML = images.map((src,i)=>`<img src="${src}" alt="${room.name} - image ${i+1}" loading="lazy">`).join("");
   propertyRoot.querySelector("[data-property-title]").textContent = room.name;
   propertyRoot.querySelector("[data-property-price]").innerHTML = `${room.price}<small> / month</small>`;
   propertyRoot.querySelector("[data-property-type]").textContent = room.type;
   propertyRoot.querySelector("[data-property-furnishing]").textContent = room.furnishing;
   propertyRoot.querySelector("[data-property-preference]").textContent = room.preference;
   propertyRoot.querySelector("[data-property-description]").textContent = room.description;
-  propertyRoot.querySelector("[data-property-book]")?.addEventListener("click",()=>{
-    sessionStorage.setItem("eliteStaySelectedRoom", room.name);
-    location.href = "contact.html#contact-form";
-  });
-}
 
+  const breakdown = propertyRoot.querySelector("[data-property-breakdown]");
+  if (breakdown) breakdown.innerHTML = commonBreakdown.map(card=>`<article class="property-breakdown-card"><div class="property-breakdown-icon">${card.icon}</div><h3>${card.title}</h3><ul>${card.items.map(item=>`<li>${item}</li>`).join("")}</ul></article>`).join("");
+  const breakdownTitle = propertyRoot.querySelector("[data-property-breakdown-title]");
+  if (breakdownTitle) breakdownTitle.textContent = `What’s Inside Your ${room.name}`;
+  propertyRoot.querySelector("[data-property-overview-title]").textContent = `Comfortable Living at The Elite Stay PG & Hostel`;
+  propertyRoot.querySelector("[data-property-overview-intro]").textContent = `Explore this complete ${room.name.toLowerCase()} accommodation in Beta 1, Greater Noida. Confirm current availability, deposit, food and other charges with management before booking.`;
+  const overviewCopy = propertyRoot.querySelector("[data-property-overview-copy]");
+  if (overviewCopy) overviewCopy.innerHTML = `<p><strong>Room Space & Comfort:</strong> The ${room.name.toLowerCase()} is designed for students and working professionals who want a clean, comfortable and well-managed stay. Residents get an individual bed, comfortable mattress, pillow and fresh bedsheet, with a choice of <strong>Balcony</strong> or <strong>Non-Balcony</strong> preference depending on availability.</p><p><strong>Furniture, Study Setup & Personal Almirah:</strong> Every resident gets personal storage with an individual lock, along with a dedicated <strong>study table and chair</strong> for study, assignments or work-from-home use.</p><p><strong>AC, Geyser & Attached Washroom:</strong> The room is equipped with <strong>AC</strong> for comfortable living. Every room has an <strong>Attached Washroom</strong> and access to a 24×7 geyser for hot water, along with regular housekeeping and continuous water supply.</p><p><strong>Homey Meals, High-Speed Wi-Fi & 24×7 Security:</strong> The stay includes high-speed Wi-Fi, nutritious <strong>3-time meals</strong>, RO drinking water, 24×7 power backup, daily housekeeping and CCTV/security support.</p>`;
+
+  const videoWrap = propertyRoot.querySelector("[data-property-video]");
+  const videoTitle = propertyRoot.querySelector("[data-property-video-title]");
+  const videoSrc = ROOM_VIDEOS[room.name] || "";
+  if (videoTitle) videoTitle.textContent = `${room.name} Video`;
+  if (videoWrap) {
+    videoWrap.innerHTML = videoSrc
+      ? `<video controls playsinline preload="metadata" poster="${images[0] || ""}"><source src="${videoSrc}" type="video/mp4">Your browser does not support the video tag.</video>`
+      : `<div class="property-video-placeholder"><span class="property-video-play">▶</span><strong>${room.name} Video</strong><small>Add this room’s separate video URL in <code>ROOM_VIDEOS</code> inside <code>js/main.js</code>.</small></div>`;
+  }
+
+  propertyRoot.querySelectorAll("[data-property-book]").forEach(btn=>btn.addEventListener("click",()=>{
+    openRoomEnquiry(room.name, room.price);
+  }));
+
+  const otherRoomsWrap = propertyRoot.querySelector("[data-other-rooms]");
+  if (otherRoomsWrap) {
+    const otherRooms = Object.values(roomBySlug).filter(item => item.name !== room.name);
+    otherRoomsWrap.innerHTML = otherRooms.map(item => {
+      const image = (ROOM_MEDIA[item.name] || ROOM_MEDIA["4 Seater Room"])[0];
+      const slug = Object.keys(roomBySlug).find(key => roomBySlug[key].name === item.name);
+      return `<article class="property-other-room-card">
+        <div class="property-other-room-image"><img src="${image}" alt="${item.name}" loading="lazy"></div>
+        <div class="property-other-room-body">
+          <span class="eyebrow">ROOM OPTION</span>
+          <h3>${item.name}</h3>
+          <div class="property-other-room-price">${item.price}<small> / month</small></div>
+          <p>Fully furnished • AC • Attached Washroom</p>
+          <div class="property-other-room-actions">
+            <button class="btn" type="button" data-other-room-enquiry data-room-name="${item.name}" data-room-price="${item.price}">Enquiry</button>
+            <a class="btn btn-outline" href="property.html?room=${encodeURIComponent(slug)}">View Details →</a>
+          </div>
+        </div>
+      </article>`;
+    }).join("");
+    otherRoomsWrap.querySelectorAll("[data-other-room-enquiry]").forEach(btn => {
+      btn.addEventListener("click", () => openRoomEnquiry(btn.dataset.roomName, btn.dataset.roomPrice));
+    });
+  }
+}
 
 const lightbox=document.querySelector("#lightbox");
 let lightboxItems=[],lightboxIndex=0;
@@ -171,7 +246,7 @@ document.addEventListener("keydown",e=>{if (e.key === "Escape") {
 }
 if(lightbox?.classList.contains("show")&&e.key==="ArrowRight")showLightbox(lightboxIndex+1);if(lightbox?.classList.contains("show")&&e.key==="ArrowLeft")showLightbox(lightboxIndex-1);});
 
-/* Room-card enquiry popup + Formspree submission */
+/* Room enquiry popup + Formspree submission */
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xoednvnb";
 
 function createInquiryModal() {
@@ -181,27 +256,29 @@ function createInquiryModal() {
   wrap.id = "roomInquiryModal";
   wrap.setAttribute("aria-hidden", "true");
   wrap.innerHTML = `
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="roomInquiryTitle">
-      <button class="modal-close" type="button" data-inquiry-close aria-label="Close">×</button>
-      <div class="modal-content">
-        <span class="eyebrow">ROOM ENQUIRY</span>
-        <h2 id="roomInquiryTitle">Book Your Room</h2>
-        <p class="muted">Send your details and The Elite Stay PG & Hostel will contact you.</p>
+    <div class="modal inquiry-room-modal" role="dialog" aria-modal="true" aria-labelledby="roomInquiryTitle">
+      <button class="modal-close inquiry-close" type="button" data-inquiry-close aria-label="Close">×</button>
+      <div class="inquiry-room-header">
+        <span class="eyebrow" data-inquiry-room-label>ROOM ENQUIRY</span>
+        <h2 id="roomInquiryTitle">Submit Room Enquiry</h2>
+      </div>
+      <div class="modal-content inquiry-room-content">
         <form id="roomInquiryForm" action="${FORMSPREE_ENDPOINT}" method="POST">
           <input type="hidden" name="_subject" value="The Elite Stay PG & Hostel - Room Enquiry">
-          <input type="hidden" name="source" value="Room Card Enquiry">
-          <div class="form-grid">
-            <div class="field"><label for="inquiryName">Full Name *</label><input id="inquiryName" name="name" autocomplete="name" required placeholder="Enter your name"></div>
-            <div class="field"><label for="inquiryPhone">Phone Number *</label><input id="inquiryPhone" name="phone" type="tel" autocomplete="tel" required pattern="[0-9+() -]{8,20}" placeholder="Enter phone number"></div>
-            <div class="field"><label for="inquiryEmail">Email</label><input id="inquiryEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
-            <div class="field"><label for="inquiryRoom">Room Type *</label><select id="inquiryRoom" name="roomType" required><option value="">Select room type</option><option>4 Seater Room</option><option>3 Seater Room</option><option>2 Seater Room</option><option>1 Seater Room</option></select></div>
-            <div class="field"><label for="inquiryMoveDate">Expected Move-in Date</label><input id="inquiryMoveDate" name="moveDate" type="date"></div>
-            <div class="field"><label for="inquiryOccupants">Number of Occupants</label><select id="inquiryOccupants" name="occupants"><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
-            <div class="field full"><label for="inquiryMessage">Message</label><textarea id="inquiryMessage" name="message" placeholder="Any requirement or question..."></textarea></div>
+          <input type="hidden" name="source" value="Room Enquiry Popup">
+          <input type="hidden" name="roomPrice" id="inquiryRoomPrice">
+          <input type="hidden" name="roomType" id="inquiryRoomHidden">
+          <div class="form-grid inquiry-room-grid">
+            <div class="field"><label for="inquiryName">Full Name *</label><input id="inquiryName" name="name" autocomplete="name" required placeholder="e.g. Rahul Sharma"></div>
+            <div class="field"><label for="inquiryPhone">Mobile Number *</label><input id="inquiryPhone" name="phone" type="tel" autocomplete="tel" required pattern="[0-9+() -]{8,20}" placeholder="10-digit mobile number"></div>
+            <div class="field full"><label for="inquiryMoveDate">Expected Move-in Date *</label><input id="inquiryMoveDate" name="moveDate" type="date" required></div>
+            <div class="field"><label for="inquiryRoomPreference">Room Preference</label><select id="inquiryRoomPreference" name="roomPreference"><option>Balcony Room</option><option>Non-Balcony Room</option></select></div>
+            <div class="field"><label for="inquiryWashroomPreference">Washroom Preference</label><select id="inquiryWashroomPreference" name="washroomPreference"><option>Attached Washroom</option></select></div>
+            <div class="field full"><label for="inquiryMessage">Message (Optional)</label><textarea id="inquiryMessage" name="message" placeholder="Any questions about AC, geyser, meals, or visiting time?"></textarea></div>
           </div>
-          <div class="form-actions">
-            <button class="btn btn-outline" type="button" data-inquiry-cancel>Cancel</button>
-            <button class="btn" type="submit" data-inquiry-submit>Send Enquiry ↗</button>
+          <div class="form-actions inquiry-room-actions">
+            <button class="btn" type="submit" data-inquiry-submit>Send Enquiry</button>
+            <button class="btn inquiry-whatsapp-btn" type="button" data-inquiry-whatsapp><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat on WhatsApp</button>
           </div>
           <div class="notice" data-inquiry-notice role="status" aria-live="polite"></div>
         </form>
@@ -211,97 +288,129 @@ function createInquiryModal() {
   return wrap;
 }
 
-const roomCards = document.querySelectorAll("[data-room-card]");
-if (roomCards.length) {
-  const inquiryModal = createInquiryModal();
-  const inquiryForm = inquiryModal.querySelector("#roomInquiryForm");
-  const inquiryNotice = inquiryModal.querySelector("[data-inquiry-notice]");
-  const inquiryRoom = inquiryModal.querySelector("[name=roomType]");
+const inquiryModal = createInquiryModal();
+const inquiryForm = inquiryModal.querySelector("#roomInquiryForm");
+const inquiryNotice = inquiryModal.querySelector("[data-inquiry-notice]");
+const inquiryRoomLabel = inquiryModal.querySelector("[data-inquiry-room-label]");
+const inquiryRoomHidden = inquiryModal.querySelector("#inquiryRoomHidden");
+const inquiryRoomPrice = inquiryModal.querySelector("#inquiryRoomPrice");
+const inquiryMoveDate = inquiryModal.querySelector("#inquiryMoveDate");
+let currentInquiryRoom = "";
+let currentInquiryPrice = "";
 
-  const closeInquiry = () => {
-    inquiryModal.classList.remove("show");
-    inquiryModal.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("modal-open");
-  };
-
-  const openInquiry = (roomName = "") => {
-    if (roomName && inquiryRoom) inquiryRoom.value = roomName;
-    if (inquiryNotice) {
-      inquiryNotice.style.display = "none";
-      inquiryNotice.textContent = "";
-    }
-    inquiryModal.classList.add("show");
-    inquiryModal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("modal-open");
-    setTimeout(() => inquiryModal.querySelector("[name=name]")?.focus(), 50);
-  };
-
-  document.querySelectorAll("[data-room-submit]").forEach(btn => {
-    btn.addEventListener("click", () => openInquiry(btn.dataset.roomSubmit || ""));
-  });
-
-  inquiryModal.querySelector("[data-inquiry-close]")?.addEventListener("click", closeInquiry);
-  inquiryModal.querySelector("[data-inquiry-cancel]")?.addEventListener("click", closeInquiry);
-  inquiryModal.addEventListener("click", e => { if (e.target === inquiryModal) closeInquiry(); });
-
-  inquiryForm?.addEventListener("submit", async e => {
-    e.preventDefault();
-    if (!inquiryForm.reportValidity()) return;
-
-    const submitBtn = inquiryForm.querySelector("[data-inquiry-submit]");
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
-
-    try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        body: new FormData(inquiryForm),
-        headers: { Accept: "application/json" }
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.errors?.map(x => x.message).join(", ") || `Submission failed (${response.status})`);
-
-      inquiryNotice.style.display = "block";
-      inquiryNotice.textContent = "Thank you! Your enquiry has been sent successfully.";
-      inquiryForm.reset();
-      setTimeout(closeInquiry, 1200);
-    } catch (error) {
-      inquiryNotice.style.display = "block";
-      inquiryNotice.textContent = error.message || "Network error. Please try again.";
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Send Enquiry ↗";
-    }
-  });
+if (inquiryMoveDate) {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  inquiryMoveDate.min = `${yyyy}-${mm}-${dd}`;
 }
 
-const inquiryForm=document.querySelector("#inquiryForm");
-if(inquiryForm){
-  inquiryForm.setAttribute("action", FORMSPREE_ENDPOINT);
-  inquiryForm.setAttribute("method", "POST");
-  const roomSelect=inquiryForm.querySelector('[name="roomType"]');
+function closeInquiry() {
+  inquiryModal.classList.remove("show");
+  inquiryModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+function openRoomEnquiry(roomName = "", roomPrice = "") {
+  currentInquiryRoom = roomName || "Room Enquiry";
+  currentInquiryPrice = roomPrice || "";
+  inquiryRoomLabel.textContent = roomPrice ? `${currentInquiryRoom.toUpperCase()} • ${roomPrice}/MO` : currentInquiryRoom.toUpperCase();
+  inquiryRoomHidden.value = currentInquiryRoom;
+  inquiryRoomPrice.value = currentInquiryPrice;
+  inquiryModal.classList.add("show");
+  inquiryModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+  setTimeout(() => inquiryModal.querySelector("[name=name]")?.focus(), 50);
+}
+
+window.openRoomEnquiry = openRoomEnquiry;
+
+document.querySelectorAll("[data-room-submit]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const roomName = btn.dataset.roomSubmit || "";
+    const priceMap = {
+      "4 Seater Room": "₹10,000–₹11,000",
+      "3 Seater Room": "₹12,000–₹15,000",
+      "2 Seater Room": "₹16,000–₹20,000",
+      "1 Seater Room": "₹30,000–₹31,000"
+    };
+    openRoomEnquiry(roomName, priceMap[roomName] || "");
+  });
+});
+
+inquiryModal.querySelector("[data-inquiry-close]")?.addEventListener("click", closeInquiry);
+inquiryModal.addEventListener("click", e => { if (e.target === inquiryModal) closeInquiry(); });
+
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeInquiry(); });
+
+inquiryForm?.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!inquiryForm.reportValidity()) return;
+  const submitBtn = inquiryForm.querySelector("[data-inquiry-submit]");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Sending...";
+  inquiryNotice.style.display = "none";
+  try {
+    const response = await fetch(FORMSPREE_ENDPOINT, {
+      method: "POST",
+      body: new FormData(inquiryForm),
+      headers: { Accept: "application/json" }
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.errors?.map(x => x.message).join(", ") || `Submission failed (${response.status})`);
+    inquiryNotice.style.display = "block";
+    inquiryNotice.textContent = "Thank you! Your enquiry has been sent successfully.";
+    setTimeout(() => {
+      inquiryForm.reset();
+      inquiryRoomHidden.value = currentInquiryRoom;
+      inquiryRoomPrice.value = currentInquiryPrice;
+      closeInquiry();
+    }, 1200);
+  } catch (error) {
+    inquiryNotice.style.display = "block";
+    inquiryNotice.textContent = error.message || "Network error. Please try again.";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Send Enquiry";
+  }
+});
+
+inquiryModal.querySelector("[data-inquiry-whatsapp]")?.addEventListener("click", () => {
+  if (!inquiryForm.reportValidity()) return;
+  if (!CONFIG.whatsappNumber) return;
+  const d = Object.fromEntries(new FormData(inquiryForm).entries());
+  const message = `The Elite Stay PG & Hostel Room Enquiry\n\nRoom: ${d.roomType}\nPrice: ${d.roomPrice || "Not specified"}\nName: ${d.name}\nPhone: ${d.phone}\nMove-in: ${d.moveDate}\nRoom Preference: ${d.roomPreference}\nWashroom: ${d.washroomPreference}\nMessage: ${d.message || "No message"}`;
+  window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
+});
+
+const contactInquiryForm=document.querySelector("#inquiryForm");
+if(contactInquiryForm){
+  contactInquiryForm.setAttribute("action", FORMSPREE_ENDPOINT);
+  contactInquiryForm.setAttribute("method", "POST");
+  const roomSelect=contactInquiryForm.querySelector('[name="roomType"]');
   const chosen=sessionStorage.getItem("eliteStaySelectedRoom");
   if(chosen&&roomSelect){const match=[...roomSelect.options].find(o=>o.text.toLowerCase().includes(chosen.toLowerCase().replace(" room","")));if(match)roomSelect.value=match.value;sessionStorage.removeItem("eliteStaySelectedRoom");}
-  const notice=inquiryForm.querySelector(".notice");
+  const notice=contactInquiryForm.querySelector(".notice");
 
-  inquiryForm.addEventListener("submit", async e=>{
+  contactInquiryForm.addEventListener("submit", async e=>{
     e.preventDefault();
-    if(!inquiryForm.reportValidity())return;
-    const button=inquiryForm.querySelector("[data-submit-demo]");
+    if(!contactInquiryForm.reportValidity())return;
+    const button=contactInquiryForm.querySelector("[data-submit-demo]");
     button.disabled=true;
     button.textContent="Sending...";
     notice.style.display="none";
     try{
       const response=await fetch(FORMSPREE_ENDPOINT,{
         method:"POST",
-        body:new FormData(inquiryForm),
+        body:new FormData(contactInquiryForm),
         headers:{Accept:"application/json"}
       });
       const result=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(result.errors?.map(x=>x.message).join(", ")||`Submission failed (${response.status})`);
       notice.style.display="block";
       notice.textContent="Thank you! Your inquiry has been sent successfully.";
-      inquiryForm.reset();
+      contactInquiryForm.reset();
     }catch(error){
       notice.style.display="block";
       notice.textContent=error.message||"Network error. Please check your internet and try again.";
@@ -311,7 +420,7 @@ if(inquiryForm){
     }
   });
 
-  inquiryForm.querySelector("[data-send-whatsapp]")?.addEventListener("click",e=>{e.preventDefault();if(!inquiryForm.reportValidity())return;if(!CONFIG.whatsappNumber){notice.style.display="block";notice.textContent="WhatsApp is not configured yet. Add the real WhatsApp number in js/main.js before using this button.";return;}const d=Object.fromEntries(new FormData(inquiryForm).entries());
+  contactInquiryForm.querySelector("[data-send-whatsapp]")?.addEventListener("click",e=>{e.preventDefault();if(!contactInquiryForm.reportValidity())return;if(!CONFIG.whatsappNumber){notice.style.display="block";notice.textContent="WhatsApp is not configured yet. Add the real WhatsApp number in js/main.js before using this button.";return;}const d=Object.fromEntries(new FormData(contactInquiryForm).entries());
   const message=`The Elite Stay PG & Hostel Inquiry\n\nName: ${d.name}\nPhone: ${d.phone}\nEmail: ${d.email||"Not provided"}\nRoom: ${d.roomType}\nMove-in: ${d.moveDate||"Not specified"}\nOccupants: ${d.occupants||"Not specified"}\nMessage: ${d.message||"No message"}`;
   window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`,"_blank","noopener");
   });
@@ -331,3 +440,181 @@ document.querySelectorAll("[data-floating-whatsapp]").forEach(link=>{
     window.open("https://wa.me/"+CONFIG.whatsappNumber+"?text="+encodeURIComponent(msg),"_blank","noopener");
   });
 });
+
+
+// Floating Instagram button alongside the existing WhatsApp button.
+document.querySelectorAll("[data-floating-instagram]").forEach(link=>{
+  link.addEventListener("click",event=>{
+    event.preventDefault();
+    window.open("https://www.instagram.com/theelitestaypg/","_blank","noopener");
+  });
+});
+
+// Facilities page: weekly menu tabs and interactive amenity chips.
+(function(){
+  const menuData = {
+    mon:{breakfast:"Aloo Paratha with Curd, Pickle & Hot Tea",lunch:"Rajma Masala, Jeera Rice, Seasonal Sabzi, 4 Rotis & Salad (Tiffin Ready)",dinner:"Dal Tadka, Aloo Gobhi, Steamed Rice & Hot Tawa Phulkas"},
+    tue:{breakfast:"Vegetable Poha with Peanuts, Sev & Ginger Tea",lunch:"Chole Masala, Plain Rice, Boondi Raita & 4 Rotis (Tiffin Ready)",dinner:"Mix Veg Sabzi, Yellow Dal Fry, Soft Rotis & Roasted Papad"},
+    wed:{breakfast:"Paneer Paratha with Curd, Pickle & Tea",lunch:"Dal Makhani, Jeera Rice, Seasonal Sabzi, 4 Rotis & Salad (Tiffin Ready)",dinner:"Aloo Jeera, Moong Dal, Steamed Rice & Hot Rotis"},
+    thu:{breakfast:"Besan Chilla with Mint Chutney & Tea",lunch:"Rajma, Rice, Aloo Gobhi, 4 Rotis & Salad (Tiffin Ready)",dinner:"Kadhi Pakora, Jeera Rice, Seasonal Sabzi & Hot Rotis"},
+    fri:{breakfast:"Veg Sandwich / Besan Chilla with Mint Chutney & Tea",lunch:"Dal Palak, Aloo Matar, Jeera Rice & 4 Rotis (Tiffin Ready)",dinner:"Shahi Paneer / Kadhai Paneer, Dal Fry, Pulao & Hot Rotis"},
+    sat:{breakfast:"Aloo Pyaaz Paratha with Curd, Pickle & Tea",lunch:"Chole, Jeera Rice, Mixed Veg, 4 Rotis & Salad (Tiffin Ready)",dinner:"Matar Paneer, Dal Tadka, Rice & Hot Phulkas"},
+    sun:{breakfast:"Poori Bhaji with Curd & Hot Tea",lunch:"Veg Pulao, Dal, Seasonal Sabzi, 4 Rotis & Raita (Tiffin Ready)",dinner:"Paneer Masala, Dal Fry, Steamed Rice & Hot Rotis"}
+  };
+  const menuButtons=document.querySelectorAll("[data-menu-day]");
+  const breakfast=document.querySelector("[data-menu-breakfast]");
+  const lunch=document.querySelector("[data-menu-lunch]");
+  const dinner=document.querySelector("[data-menu-dinner]");
+  menuButtons.forEach(btn=>btn.addEventListener("click",()=>{
+    const data=menuData[btn.dataset.menuDay]; if(!data)return;
+    menuButtons.forEach(b=>{const active=b===btn;b.classList.toggle("active",active);b.setAttribute("aria-selected",String(active));});
+    if(breakfast)breakfast.textContent=data.breakfast;
+    if(lunch)lunch.textContent=data.lunch;
+    if(dinner)dinner.textContent=data.dinner;
+  }));
+
+  const amenities={
+    wifi:["High-Speed Wi-Fi","Reliable high-speed internet access for online classes, work, calls and entertainment."],
+    backup:["24×7 Power Backup","Backup support helps keep lights, fans and Wi-Fi available during power interruptions."],
+    cctv:["CCTV Surveillance","CCTV coverage is provided around key common and entry areas for resident safety."],
+    housekeeping:["Daily Housekeeping","Regular cleaning support helps keep rooms, washrooms and common areas neat and hygienic."],
+    fridge:["Common Refrigerator","Common refrigerator access is available for residents to store suitable personal food items."],
+    lift:["Lift Access","Lift access makes daily movement between floors more convenient for residents."],
+    bike:["Bike Parking","Bike parking is available for residents for convenient two-wheeler access."],
+    common:["Clean Common Areas","Dining, corridors and shared spaces are maintained regularly for comfortable daily use."],
+    geyser:["24×7 Geyser","Geyser hot-water support is available for comfortable bathing throughout the day."],
+    markets:["Nearby Markets (Jagat Farm)","Jagat Farm is nearby for groceries, stationery, pharmacies, ATMs, salons and everyday essentials."],
+    washing:["Washing Machine","Washing machine facility is available for residents for convenient everyday laundry needs."]
+  };
+  const amenityButtons=document.querySelectorAll("[data-amenity]");
+  const amenityTitle=document.querySelector("[data-amenity-title]");
+  const amenityDescription=document.querySelector("[data-amenity-description]");
+  amenityButtons.forEach(btn=>btn.addEventListener("click",()=>{
+    const data=amenities[btn.dataset.amenity]; if(!data)return;
+    amenityButtons.forEach(b=>b.classList.toggle("active",b===btn));
+    if(amenityTitle)amenityTitle.textContent=data[0]+":";
+    if(amenityDescription)amenityDescription.textContent=data[1];
+  }));
+})();
+
+
+/* Nearby locations: additive filter/search/directions behavior only. */
+(function(){
+  const nearbyLocations = [
+    {name:"Jagat Farm Market",category:"market",label:"Markets & Malls",distance:"500 m · 5 min walk",mode:"Walk",description:"Street food, groceries, stationery, ATMs & daily essentials",icon:"fa-bag-shopping"},
+    {name:"Alpha 1 Commercial Belt",category:"market",label:"Markets & Malls",distance:"1.1 km · 4 min auto / 14 min walk",mode:"Auto / Walk",description:"Cafes, coaching centres, banks & shopping",icon:"fa-bag-shopping"},
+    {name:"Ansal Plaza Mall",category:"market",label:"Markets & Malls",distance:"1.5 km · 5 min drive",mode:"Drive / Auto",description:"Shopping, dining & hangout spots",icon:"fa-bag-shopping"},
+    {name:"Omaxe Connaught Place Mall",category:"market",label:"Markets & Malls",distance:"1.5 km · 5 min drive",mode:"Drive / Auto",description:"Multiplex cinema, food court & retail brands",icon:"fa-bag-shopping"},
+    {name:"MSX Mall",category:"market",label:"Markets & Malls",distance:"3.1 km · 9 min drive",mode:"Drive / Auto",description:"Cinema, shopping & restaurants",icon:"fa-bag-shopping"},
+    {name:"The Grand Venice Mall",category:"market",label:"Markets & Malls",distance:"3.4 km · 10 min drive",mode:"Drive / Auto",description:"Major mall, gaming zone & dining",icon:"fa-bag-shopping"},
+    {name:"Alpha 1 Metro Station (Aqua Line)",category:"metro",label:"Metro & Commute",distance:"1.0 km · 4 min e-rickshaw / 12 min walk",mode:"E-Rickshaw / Walk",description:"Nearest metro station for Noida & Delhi commute",icon:"fa-train-subway"},
+    {name:"Pari Chowk Metro Station",category:"metro",label:"Metro & Commute",distance:"1.6 km · 5 min drive",mode:"E-Rickshaw / Auto",description:"Major Greater Noida transit hub & bus stand",icon:"fa-train-subway"},
+    {name:"Delta 1 Metro Station",category:"metro",label:"Metro & Commute",distance:"1.9 km · 6 min drive",mode:"Auto / Drive",description:"Aqua Line station",icon:"fa-train-subway"},
+    {name:"Knowledge Park II Metro Station",category:"metro",label:"Metro & Commute",distance:"2.3 km · 7 min drive",mode:"E-Rickshaw / Drive",description:"Direct metro stop for Knowledge Park colleges",icon:"fa-train-subway"},
+    {name:"GNIDA Office Metro Station",category:"metro",label:"Metro & Commute",distance:"3.1 km · 9 min drive",mode:"Drive / Auto",description:"Aqua Line connectivity",icon:"fa-train-subway"},
+    {name:"IEC College of Engg. & Tech",category:"college",label:"Colleges & Universities",distance:"1.2 km · 4 min drive",mode:"E-Rickshaw",description:"Knowledge Park I, easy e-rickshaw access",icon:"fa-graduation-cap"},
+    {name:"Accurate Institute of Mgmt. & Tech",category:"college",label:"Colleges & Universities",distance:"2.3 km · 7 min drive",mode:"E-Rickshaw / Auto",description:"Knowledge Park III",icon:"fa-graduation-cap"},
+    {name:"Galgotias College (GCET)",category:"college",label:"Colleges & Universities",distance:"2.8 km · 8 min drive",mode:"Shared Auto",description:"Knowledge Park II, frequent shared autos",icon:"fa-graduation-cap"},
+    {name:"GNIOT & IILM University",category:"college",label:"Colleges & Universities",distance:"2.8 km · 8 min drive",mode:"E-Rickshaw / Auto",description:"Knowledge Park II campus cluster",icon:"fa-graduation-cap"},
+    {name:"NIET (Noida Inst. of Engg. & Tech)",category:"college",label:"Colleges & Universities",distance:"3.0 km · 9 min drive",mode:"Auto / Drive",description:"Knowledge Park II",icon:"fa-graduation-cap"},
+    {name:"Sharda University",category:"college",label:"Colleges & Universities",distance:"3.7 km · 10–12 min drive",mode:"E-Rickshaw",description:"Knowledge Park III, direct e-rickshaw route",icon:"fa-graduation-cap"},
+    {name:"GL Bajaj Institute of Tech & Mgmt.",category:"college",label:"Colleges & Universities",distance:"4.0 km · 10–12 min drive",mode:"Auto / E-Rickshaw",description:"Knowledge Park III, popular student route",icon:"fa-graduation-cap"},
+    {name:"Gautam Buddha University (GBU)",category:"college",label:"Colleges & Universities",distance:"8.4 km · 18 min drive",mode:"Drive / Auto",description:"Yamuna Expressway side",icon:"fa-graduation-cap"},
+    {name:"Beta 1 Local Market & ATMs",category:"hospital",label:"Hospitals & Daily",distance:"300 m · 3 min walk",mode:"Walk",description:"Medical store, dairy, photocopy & banks",icon:"fa-square-plus"},
+    {name:"Kailash Hospital, Greater Noida",category:"hospital",label:"Hospitals & Daily",distance:"700 m · 3 min drive / 8 min walk",mode:"Walk / Drive",description:"24×7 Multi-speciality & emergency care",icon:"fa-square-plus"},
+    {name:"Sharma Medicare Super Speciality",category:"hospital",label:"Hospitals & Daily",distance:"1.7 km · 5 min drive",mode:"Drive / Auto",description:"24×7 healthcare & trauma centre",icon:"fa-square-plus"},
+    {name:"Sharda Hospital",category:"hospital",label:"Hospitals & Daily",distance:"2.3 km · 7 min drive",mode:"Drive / Auto",description:"Multi-speciality hospital near Knowledge Park",icon:"fa-square-plus"},
+    {name:"Yatharth Super Speciality Hospital",category:"hospital",label:"Hospitals & Daily",distance:"2.9 km · 9 min drive",mode:"Drive / Auto",description:"Major super speciality hospital",icon:"fa-square-plus"}
+  ];
+
+  const origin = "The Elite Stay PG & Hostel, A-6, Beta 1, Greater Noida";
+  const iconMap = {college:"fa-graduation-cap", metro:"fa-train-subway", market:"fa-bag-shopping", hospital:"fa-square-plus"};
+  const categoryNames = {college:"Colleges & Universities", metro:"Metro & Commute", market:"Markets & Malls", hospital:"Hospitals & Daily"};
+
+  function directionsFor(name){
+    return "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) + "&destination=" + encodeURIComponent(name + ", Greater Noida, Uttar Pradesh");
+  }
+
+  function cardTemplate(item){
+    return `<article class="nearby-card" data-category="${item.category}" data-nearby-card data-search-text="${(item.name+" "+item.label+" "+item.description+" "+item.distance+" "+item.mode).toLowerCase()}">
+      <div class="nearby-card-top">
+        <div class="nearby-icon"><i class="fa-solid ${item.icon || iconMap[item.category]}" aria-hidden="true"></i></div>
+        <div class="nearby-card-main">
+          <span class="nearby-category">${item.label}</span>
+          <h3>${item.name}</h3>
+        </div>
+      </div>
+      <div class="nearby-meta">
+        <span class="nearby-distance"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${item.distance}</span>
+        <span class="nearby-mode">${item.mode}</span>
+      </div>
+      <p class="nearby-description">${item.description}</p>
+      <div class="nearby-card-footer">
+        <span class="nearby-origin">From Beta 1 Gate No. 1</span>
+        <a class="nearby-directions" href="${directionsFor(item.name)}" target="_blank" rel="noopener noreferrer">Directions →</a>
+      </div>
+    </article>`;
+  }
+
+  function setupNearby(){
+    const grid = document.querySelector("[data-nearby-grid]");
+    const sampleGrid = document.querySelector("[data-nearby-sample-grid]");
+    const tabRoot = document.querySelector(".nearby-tabs");
+    const search = document.querySelector("[data-nearby-search]");
+    const empty = document.querySelector("[data-nearby-empty]");
+    if(!grid || !tabRoot || !search) return;
+    if(tabRoot.dataset.nearbyReady === "1") return;
+    tabRoot.dataset.nearbyReady = "1";
+
+    grid.innerHTML = nearbyLocations.map(cardTemplate).join("");
+    if(sampleGrid){
+      const samples = [
+        nearbyLocations.find(x=>x.name==="GL Bajaj Institute of Tech & Mgmt."),
+        nearbyLocations.find(x=>x.name==="Alpha 1 Metro Station (Aqua Line)"),
+        nearbyLocations.find(x=>x.name==="Jagat Farm Market")
+      ].filter(Boolean);
+      sampleGrid.innerHTML = samples.map(cardTemplate).join("");
+    }
+
+    let active = "all";
+
+    function apply(){
+      const term = (search.value || "").trim().toLowerCase();
+      let shown = 0;
+      grid.querySelectorAll("[data-nearby-card]").forEach(card=>{
+        const categoryOk = active === "all" || (card.dataset.category || "") === active;
+        const searchable = (card.dataset.searchText || card.textContent || "").toLowerCase();
+        const textOk = !term || searchable.includes(term);
+        const visible = categoryOk && textOk;
+
+        // Use both the hidden property and an inline display rule so the filter
+        // works reliably on desktop and mobile even if another CSS rule styles cards.
+        card.hidden = !visible;
+        card.style.display = visible ? "flex" : "none";
+        card.setAttribute("aria-hidden", String(!visible));
+        if(visible) shown++;
+      });
+
+      if(empty) empty.hidden = shown !== 0;
+    }
+
+    tabRoot.querySelectorAll("[data-nearby-filter]").forEach(tab=>{
+      tab.addEventListener("click", event=>{
+        event.preventDefault();
+        active = (tab.dataset.nearbyFilter || "all").toLowerCase();
+        tabRoot.querySelectorAll("[data-nearby-filter]").forEach(t=>{
+          const selected = t === tab;
+          t.classList.toggle("active", selected);
+          t.setAttribute("aria-selected", String(selected));
+        });
+        apply();
+      });
+    });
+
+    search.addEventListener("input", apply);
+    apply();
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupNearby);
+  else setupNearby();
+})();
