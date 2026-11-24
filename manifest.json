@@ -3,20 +3,23 @@
   "short_name": "Elite Stay PG",
   "description": "The Elite Stay PG & Hostel - Comfortable PG accommodation in Beta 1, Greater Noida.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#006bff",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "./images/elite-stay-logo.png",
+      "src": "./images/pwa-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "./images/elite-stay-logo.png",
+      "src": "./images/pwa-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

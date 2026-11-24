@@ -10,6 +10,8 @@ const FILES_TO_CACHE = [
   "./contact.html",
   "./property.html",
   "./manifest.json",
+  "./images/pwa-192.png",
+  "./images/pwa-512.png",
   "./css/style.css",
   "./js/main.js"
 ];
