@@ -108,28 +108,28 @@ if (modalBackdrop) {
 /* Auto-rotate room-card images every 5 seconds on every page that contains room cards. */
 const ROOM_MEDIA = {
   "4 Seater Room": [
-    "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=85"
+    "images/3 seater 3.jpeg",
+    "images/3 seater 1 .jpeg",
+    "images/3 Seater Room.jpeg",
+    "images/Building & Entrance.jpeg"
   ],
   "3 Seater Room": [
-    "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=900&q=85"
+    "images/3 Seater Room.jpeg",
+    "images/3 seater 1 .jpeg",
+    "images/3 seater 3.jpeg",
+    "images/Building & Entrance.jpeg"
   ],
   "2 Seater Room": [
-    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=85"
+    "images/Two Seater.jpeg",
+    "images/2 Seater room 2 .jpeg",
+    "images/2 Seater Room.jpeg",
+    "images/2 Seater Room.jpeg"
   ],
   "1 Seater Room": [
-    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85",
-    "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=85"
+    "images/single sharing private room 1.png",
+    "images/single sharing private room 1 img 2.png",
+    "images/single sharing private room 1.png",
+    "images/single sharing private room 1 img 2.png"
   ]
 };
 
@@ -153,11 +153,8 @@ document.querySelectorAll("[data-room-card]").forEach(card => {
 
 /* Property detail page: room-specific gallery, pricing, details and separate video slot. */
 const ROOM_VIDEOS = {
-  // Temporary demo video URLs. Replace each URL later with that room's own video.
-  "4 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-  "3 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-  "2 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-  "1 Seater Room": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+  "3 Seater Room": "images/3 seater roo video.mp4",
+  "2 Seater Room": "images/2 seater roomvideo.mp4"
 };
 
 const propertyRoot = document.querySelector("[data-property-page]");
@@ -453,13 +450,13 @@ document.querySelectorAll("[data-floating-instagram]").forEach(link=>{
 // Facilities page: weekly menu tabs and interactive amenity chips.
 (function(){
   const menuData = {
-    mon:{breakfast:"Aloo Paratha with Curd, Pickle & Hot Tea",lunch:"Rajma Masala, Jeera Rice, Seasonal Sabzi, 4 Rotis & Salad (Tiffin Ready)",dinner:"Dal Tadka, Aloo Gobhi, Steamed Rice & Hot Tawa Phulkas"},
-    tue:{breakfast:"Vegetable Poha with Peanuts, Sev & Ginger Tea",lunch:"Chole Masala, Plain Rice, Boondi Raita & 4 Rotis (Tiffin Ready)",dinner:"Mix Veg Sabzi, Yellow Dal Fry, Soft Rotis & Roasted Papad"},
-    wed:{breakfast:"Paneer Paratha with Curd, Pickle & Tea",lunch:"Dal Makhani, Jeera Rice, Seasonal Sabzi, 4 Rotis & Salad (Tiffin Ready)",dinner:"Aloo Jeera, Moong Dal, Steamed Rice & Hot Rotis"},
-    thu:{breakfast:"Besan Chilla with Mint Chutney & Tea",lunch:"Rajma, Rice, Aloo Gobhi, 4 Rotis & Salad (Tiffin Ready)",dinner:"Kadhi Pakora, Jeera Rice, Seasonal Sabzi & Hot Rotis"},
-    fri:{breakfast:"Veg Sandwich / Besan Chilla with Mint Chutney & Tea",lunch:"Dal Palak, Aloo Matar, Jeera Rice & 4 Rotis (Tiffin Ready)",dinner:"Shahi Paneer / Kadhai Paneer, Dal Fry, Pulao & Hot Rotis"},
-    sat:{breakfast:"Aloo Pyaaz Paratha with Curd, Pickle & Tea",lunch:"Chole, Jeera Rice, Mixed Veg, 4 Rotis & Salad (Tiffin Ready)",dinner:"Matar Paneer, Dal Tadka, Rice & Hot Phulkas"},
-    sun:{breakfast:"Poori Bhaji with Curd & Hot Tea",lunch:"Veg Pulao, Dal, Seasonal Sabzi, 4 Rotis & Raita (Tiffin Ready)",dinner:"Paneer Masala, Dal Fry, Steamed Rice & Hot Rotis"}
+    mon:{breakfast:"Poha, Pasta, Macaroni, Vermicelli or Daliya",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Seasonal Vegetable, Pulse, Rice & Roti"},
+    tue:{breakfast:"Potato Paratha, Onion Paratha, Cauliflower Paratha or Paratha with Vegetable",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Paneer, Raita, Rice & Roti"},
+    wed:{breakfast:"Poha, Pasta, Macaroni, Vermicelli or Daliya",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Kadhi, Jeera Potato, Rice & Roti"},
+    thu:{breakfast:"Potato Paratha, Onion Paratha, Cauliflower Paratha or Paratha with Vegetable",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Seasonal Vegetable, Chholey, Rice & Roti"},
+    fri:{breakfast:"Puri, Sabji & Halwa, or a rotating breakfast item",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Green Vegetable, Dal Makhni, Rice & Roti"},
+    sat:{breakfast:"Poha, Pasta, Macaroni, Vermicelli or Daliya",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Soya Chap, Raita, Rice & Roti"},
+    sun:{breakfast:"Paratha with Vegetable, Puri Sabji Halwa or another rotating breakfast item",lunch:"Morning: Seasonal Vegetable, Roti, Chana / Chholey • Afternoon: Seasonal Vegetable, Pulse & Roti",dinner:"Seasonal Vegetable, Rajma, Rice & Roti"}
   };
   const menuButtons=document.querySelectorAll("[data-menu-day]");
   const breakfast=document.querySelector("[data-menu-breakfast]");
