@@ -615,3 +615,16 @@ document.querySelectorAll("[data-floating-instagram]").forEach(link=>{
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupNearby);
   else setupNearby();
 })();
+
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(() => {
+        console.log("Elite Stay PWA Service Worker Registered");
+      })
+      .catch(error => {
+        console.error("Service Worker Registration Failed:", error);
+      });
+  });
+}
