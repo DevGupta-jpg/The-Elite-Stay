@@ -108,9 +108,9 @@ if (modalBackdrop) {
 /* Auto-rotate room-card images every 5 seconds on every page that contains room cards. */
 const ROOM_MEDIA = {
   "4 Seater Room": [
-    "images/3 seater 3.jpeg",
-    "images/3 seater 1 .jpeg",
-    "images/3 Seater Room.jpeg",
+    "images/4 seater image 2.png",
+    "images/4 seater img 1.png",
+    "images/4 seater img 3.png",
     "images/Building & Entrance.jpeg"
   ],
   "3 Seater Room": [
