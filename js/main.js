@@ -113,12 +113,11 @@ const ROOM_MEDIA = {
     "images/3 Seater Room.jpeg",
     "images/Building & Entrance.jpeg"
   ],
-  "3 Seater Room": [
-    "images/3 Seater Room.jpeg",
-    "images/3 seater 1 .jpeg",
-    "images/3 seater 3.jpeg",
-    "images/Building & Entrance.jpeg"
-  ],
+  "4 Seater Room": [
+    "images/4 seater image 2.png",
+    "images/4 seater img 1.png",
+    "images/4 seater img 3.png"
+],
   "2 Seater Room": [
     "images/Two Seater.jpeg",
     "images/2 Seater room 2 .jpeg",
