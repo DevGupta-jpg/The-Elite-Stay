@@ -108,28 +108,27 @@ if (modalBackdrop) {
 /* Auto-rotate room-card images every 5 seconds on every page that contains room cards. */
 const ROOM_MEDIA = {
   "4 Seater Room": [
-    "images/3 seater 3.jpeg",
-    "images/3 seater 1 .jpeg",
-    "images/3 Seater Room.jpeg",
-    "images/Building & Entrance.jpeg"
+    "images/4-seater-room-1.png",
+    "images/4-seater-room-2.png",
+    "images/4-seater-room-3.png"
   ],
   "3 Seater Room": [
-    "images/3 Seater Room.jpeg",
-    "images/3 seater 1 .jpeg",
-    "images/3 seater 3.jpeg",
-    "images/Building & Entrance.jpeg"
+    "images/3-seater-room.jpeg",
+    "images/3-seater-room-1.jpeg",
+    "images/3-seater-room-3.jpeg",
+    "images/building-entrance.jpeg"
   ],
   "2 Seater Room": [
-    "images/Two Seater.jpeg",
-    "images/2 Seater room 2 .jpeg",
-    "images/2 Seater Room.jpeg",
-    "images/2 Seater Room.jpeg"
+    "images/2-seater-room.png",
+    "images/2-seater-room-2.jpeg",
+    "images/2-seater-room-3.jpeg",
+    "images/2-seater-room-3.jpeg"
   ],
   "1 Seater Room": [
-    "images/single sharing private room 1.png",
-    "images/single sharing private room 1 img 2.png",
-    "images/single sharing private room 1.png",
-    "images/single sharing private room 1 img 2.png"
+    "images/1-seater-room.png",
+    "images/1-seater-room-2.png",
+    "images/1-seater-room.png",
+    "images/1-seater-room-2.png"
   ]
 };
 
